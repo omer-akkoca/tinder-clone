@@ -19,6 +19,7 @@ const AuthProvider = ({ children }) => {
     const [userOnGoogle, setUserOnGoogle] = useState(null)
     const [token, setToken] = useState(null)
     const [error, setError] = useState(null)
+    const [loading, setLoading] = useState(false)
 
     const [request, response, promptAsync] = Google.useAuthRequest({
         androidClientId: '798289033174-apg6tf0gf6hbkc87roqgubptca73ku42.apps.googleusercontent.com',
@@ -61,14 +62,18 @@ const AuthProvider = ({ children }) => {
     }
 
     const authenticationWithGoogle = async () => {
+        setLoading(true)
         await promptAsync()
+        setLoading(false)
     }
 
     const loginOnFirebase = ({ email, password }) => {
+        setLoading(true)
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
                 setUser(user)
+                setLoading(false)
             })
     }
 
@@ -114,7 +119,7 @@ const AuthProvider = ({ children }) => {
 
     return(
         <AuthContext.Provider value={memoedValue}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     )
 }
