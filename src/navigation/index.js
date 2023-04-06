@@ -10,7 +10,9 @@ const Navigation = () => {
     const { user } = useAuth()
 
     return (
-        <Stack.Navigator>
+        <Stack.Navigator
+            screenOptions={{ headerShown: false }}
+        >
             {
                 user
                     ? (

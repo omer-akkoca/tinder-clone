@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import {
@@ -16,19 +16,16 @@ const AuthContext = createContext(null)
 const AuthProvider = ({ children }) => {
 
     const [user, setUser] = useState(null)
-    const [userOnGoogle, setUserFromGoogle] = useState(null)
+    const [userOnGoogle, setUserOnGoogle] = useState(null)
     const [token, setToken] = useState(null)
     const [error, setError] = useState(null)
-    const [loading, setLoading] = useState(false)
-
-    console.log("LOADING: ", loading)
 
     const [request, response, promptAsync] = Google.useAuthRequest({
         androidClientId: '798289033174-apg6tf0gf6hbkc87roqgubptca73ku42.apps.googleusercontent.com',
         iosClientId: '798289033174-35c65hh40dp6socnd3s2b0klp63utame.apps.googleusercontent.com',
         expoClientId: "798289033174-mhfh66625uv6g7q820uv68udq1amn9ah.apps.googleusercontent.com",
         selectAccount: true
-    });
+    })
 
     useEffect(() => {
         if (response?.type === "success") {
@@ -40,33 +37,31 @@ const AuthProvider = ({ children }) => {
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (user) => {
             if (user) {
+                setUser(user)
             } else {
             }
         })
         return () => unsub();
     }, [])
 
-    const getUserInfo =() => {
-        fetch(
+    const getUserInfo = async () => {
+        const response = await fetch(
             "https://www.googleapis.com/userinfo/v2/me",
             {
                 headers: { Authorization: `Bearer ${token}` },
             }
         )
-        .then(res => res.json())
-        .then(user => {
-            const { email, id: password, name, picture } = user
-            setUserFromGoogle({ email, password, name, picture })
-        })
-        .catch(() => setLoading(false))
-        .finally(() => setLoading(false))
 
-    };
+        const user = await response.json()
+        if (!user.error) {
+            const { email, id: password, name, picture } = user
+            loginOnFirebase({ email, password })
+            setUserOnGoogle({ email, password, name, picture })
+        }
+    }
 
     const authenticationWithGoogle = async () => {
-        setLoading(true)
         await promptAsync()
-        setLoading(false)
     }
 
     const loginOnFirebase = ({ email, password }) => {
@@ -108,10 +103,14 @@ const AuthProvider = ({ children }) => {
     const memoedValue = useMemo(() => ({
         user,
         error,
+        request,
         userOnGoogle,
-        loading,
-        authenticationWithGoogle
-    }), [user, error, userOnGoogle, loading])
+        authenticationWithGoogle,
+        loginOnFirebase,
+        registerOnFirebase,
+        updateProfileOnFirebase,
+        logout
+    }), [user, error, request, userOnGoogle])
 
     return(
         <AuthContext.Provider value={memoedValue}>
