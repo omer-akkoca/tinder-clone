@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -6,7 +6,9 @@ import {
     updateProfile,
     signOut
 } from "firebase/auth";
-import { auth } from "../library/firebase"
+import { auth, storage } from "../library/firebase"
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { v4 as uuidv4 } from 'uuid';
 
 const AuthContext = createContext(null)
 
@@ -60,7 +62,11 @@ const AuthProvider = ({ children }) => {
             .finally(() => setLoading(false))
     }
 
-    const updateProfileOnFirebase = ({ displayName, photoURL }) => {
+    const updateProfileOnFirebase = async ({ displayName, image }) => {
+        let photoURL;
+        if (image) {
+            photoURL = await uploadFileOnFirebase(image)
+        }
         updateProfile(auth.currentUser, {
             displayName,
             photoURL
@@ -70,6 +76,16 @@ const AuthProvider = ({ children }) => {
             setError("Your profile could not be updated.")
         })
     }
+
+    const uploadFileOnFirebase = async (file) => {
+        const fileName = uuidv4()
+        const profileImageRef = ref(storage, fileName);
+        const response = await fetch(file)
+        const blob = await response.blob()
+        const uploadedResult = await uploadBytes(profileImageRef, blob)
+        const url = await getDownloadURL(uploadedResult.ref)
+        return url;
+    } 
 
     const logout = () => {
         signOut(auth)
