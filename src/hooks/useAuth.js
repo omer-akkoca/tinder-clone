@@ -32,7 +32,7 @@ const AuthProvider = ({ children }) => {
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                setUser({...user, ...userOnGoogle})
+                setUser(user)
                 setLoading(false)
             })
             .catch((error) => {
@@ -44,9 +44,12 @@ const AuthProvider = ({ children }) => {
     }
 
     const registerOnFirebase = ({ email, password }) => {
+        if (!(email || password)) return;
+        setLoading(true)
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
+                setLoading(false)
             })
             .catch((error) =>{
                 const errorCode = error.code;
@@ -54,6 +57,7 @@ const AuthProvider = ({ children }) => {
                     setError("This email adress is already in use.")
                 }
             })
+            .finally(() => setLoading(false))
     }
 
     const updateProfileOnFirebase = ({ displayName, photoURL }) => {

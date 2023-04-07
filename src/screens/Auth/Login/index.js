@@ -4,9 +4,11 @@ import useAuth from "../../../hooks/useAuth";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { deviceHeight } from "../../../config/constants";
 import useKeyboard from "../../../hooks/useKeyboard";
+import { useNavigation } from "@react-navigation/native";
 
 const Login = () => {
 
+    const navigation = useNavigation()
     const { loginOnFirebase, loading, error } = useAuth()
     const { isKeyboardVisible } = useKeyboard()
 
@@ -21,7 +23,7 @@ const Login = () => {
     }, [isKeyboardVisible])
 
     return(
-        <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
+        <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="always">
             <View className="flex-1" style={{ minHeight: deviceHeight }}>
                 <ImageBackground className="flex-1" source={require("../../../../assets/tinder.png")}>
                     <SafeAreaView className="flex-1 items-center justify-between py-10">
@@ -43,11 +45,14 @@ const Login = () => {
                             </View>
                             <TouchableOpacity
                                 onPress={() => loginOnFirebase({ email, password })}
-                                className="border border-white p-3 rounded-full shadow-md"
+                                className="border border-white p-3 rounded-full shadow-md mb-4"
                                 activeOpacity={0.5}
                                 disabled={loading}
                             >
                                 <Text className="text-center font-bold text-white">Login</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+                                <Text className="text-white text-xs text-center">I don't have an account.</Text>
                             </TouchableOpacity>
                         </View>
                     </SafeAreaView>
