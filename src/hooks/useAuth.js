@@ -71,7 +71,16 @@ const AuthProvider = ({ children }) => {
         updateProfile(auth.currentUser, {
             displayName,
             photoURL
-        }).then((user) => {
+        }).then((x) => {
+            if (displayName && image) {
+                setUser(user => ({ ...user, displayName: displayName, image }))
+            }
+            else if (displayName) {
+                setUser(user => ({ ...user, displayName }))
+            }
+            else if (image) {
+                setUser(user => ({ ...user, image }))
+            }
             CustomModal.showModal({ title: "Success", description: "Your profile updated successfully." })
         }).catch((error) => {
             setError("Your profile could not be updated.")
