@@ -9,6 +9,7 @@ import {
 import { auth, storage } from "../library/firebase"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { v4 as uuidv4 } from 'uuid';
+import { CustomModal } from "../components";
 
 const AuthContext = createContext(null)
 
@@ -71,7 +72,7 @@ const AuthProvider = ({ children }) => {
             displayName,
             photoURL
         }).then((user) => {
-            console.log("UPDATED USER: ", user)
+            CustomModal.showModal({ title: "Success", description: "Your profile updated successfully." })
         }).catch((error) => {
             setError("Your profile could not be updated.")
         })
