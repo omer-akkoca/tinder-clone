@@ -6,16 +6,17 @@ import {
     updateProfile,
     signOut
 } from "firebase/auth";
-import { auth, storage } from "../library/firebase"
+import { auth, storage, store } from "../library/firebase"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { v4 as uuidv4 } from 'uuid';
 import { CustomModal } from "../components";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 
 const AuthContext = createContext(null)
 
 const AuthProvider = ({ children }) => {
 
     const [user, setUser] = useState(null)
+    const [detailedUser, setDetailedUser] = useState(null)
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
 
@@ -28,6 +29,17 @@ const AuthProvider = ({ children }) => {
         })
         return () => unsub();
     }, [])
+
+    useEffect(() => {
+        const getDetailedUser = async () => {
+            const docRef = doc(store, "users", user?.email);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setDetailedUser(docSnap.data())
+            }
+        }
+        if (user) getDetailedUser()
+    },[user])
 
     const loginOnFirebase = ({ email, password }) => {
         if (!(email || password)) return;
@@ -87,15 +99,40 @@ const AuthProvider = ({ children }) => {
         })
     }
 
+    const editProfile = (user) => {
+        setLoading(true)
+        setDoc(doc(store, "users", user.email),{
+            age: user.age,
+            displayName: user.name,
+            id: user.email,
+            job: user.job,
+            photoURL: user.photoURL,
+            about: user.about,
+            location: user.location,
+            school: user.school,
+            timestamp: serverTimestamp()   
+        }).then(() => {
+            updateProfileOnFirebase({ displayName: user.displayName })
+            setLoading(false)
+        }).catch(err => {
+            console.log(err.code)
+        })
+    }
+
     const uploadFileOnFirebase = async (file) => {
-        const fileName = uuidv4()
+        const fileName = createAnId()
         const profileImageRef = ref(storage, fileName);
         const response = await fetch(file)
         const blob = await response.blob()
         const uploadedResult = await uploadBytes(profileImageRef, blob)
         const url = await getDownloadURL(uploadedResult.ref)
         return url;
-    } 
+    }
+
+    const createAnId = () => {
+        const id = Math.random() * 999999 + "+" + Date.now();
+        return id;
+    }
 
     const logout = () => {
         signOut(auth)
@@ -105,15 +142,19 @@ const AuthProvider = ({ children }) => {
         user,
         error,
         loading,
+        detailedUser, // can usable redux
+        setDetailedUser, // can usable redux
         loginOnFirebase,
         registerOnFirebase,
         updateProfileOnFirebase,
+        editProfile,
+        uploadFileOnFirebase,
         logout
-    }), [user, error, loading])
+    }), [user, error, loading, detailedUser])
 
     return(
         <AuthContext.Provider value={memoedValue}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     )
 }

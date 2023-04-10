@@ -4,11 +4,28 @@ import useAuth from "../../../hooks/useAuth";
 
 const EditMyProfile = () => {
 
-    const { user, updateProfileOnFirebase } = useAuth()
+    const { user, loading, editProfile, detailedUser } = useAuth()
 
     const [name, setName] = useState(user.displayName)
-    const [age, setAge] = useState(null)
-    const [job, setJob] = useState("")
+    const [age, setAge] = useState(detailedUser?.age)
+    const [job, setJob] = useState(detailedUser?.job)
+    const [about,setAbout] = useState(detailedUser?.about)
+    const [location, setLocation] = useState(detailedUser?.location)
+    const [school, setSchool] = useState(detailedUser?.school)
+
+    const handleEditProfile = () => {
+        const editedProfile = {
+            name,
+            age,
+            job,
+            email: user.email,
+            photoURL: user.photoURL,
+            about,
+            location,
+            school
+        }
+        editProfile(editedProfile)
+    }
 
     return (
         <View className="flex-1">
@@ -42,10 +59,22 @@ const EditMyProfile = () => {
                     <Text className="font-bold px-4 mb-2">About {user.displayName}</Text>
                     <View className={`bg-white h-28`}>
                         <TextInput
-                            value={job}
-                            onChangeText={setJob}
+                            value={about}
+                            onChangeText={setAbout}
                             placeholder="Hello!"
                             multiline
+                            className="p-4"
+                        />
+                    </View>
+                </View>
+
+                <View>
+                    <Text className="font-bold px-4 mb-2">School</Text>
+                    <View className="bg-white">
+                        <TextInput
+                            value={school}
+                            onChangeText={setSchool}
+                            placeholder="Set Gratuated School"
                             className="p-4"
                         />
                     </View>
@@ -67,8 +96,8 @@ const EditMyProfile = () => {
                     <Text className="font-bold px-4 mb-2">Location</Text>
                     <View className="bg-white">
                         <TextInput
-                            value={job}
-                            onChangeText={setJob}
+                            value={location}
+                            onChangeText={setLocation}
                             placeholder="Add Your Location (Town/City)"
                             className="p-4"
                         />
@@ -76,7 +105,8 @@ const EditMyProfile = () => {
                 </View>
                 
                 <TouchableOpacity
-                    onPress={() => updateProfileOnFirebase({ displayName: name })}
+                    disabled={loading}
+                    onPress={handleEditProfile}
                     className="bg-[#ff5864] p-4 rounded-full mt-5 m-4 mb-4"
                 >
                     <Text className="text-sm font-bold text-center text-white">Kaydet</Text>
@@ -87,15 +117,3 @@ const EditMyProfile = () => {
 }
 
 export { EditMyProfile };
-
-/*
-import { Entypo } from '@expo/vector-icons';
-
-<TouchableOpacity
-                        onPress={() => pickImage()}
-                        className="absolute right-4 -bottom-6 bg-[#ff5864] h-12 w-12 rounded-full items-center justify-center"
-                        activeOpacity={0.5}
-                    >
-                        <Entypo name="camera" size={W(5)} color="white" />
-                    </TouchableOpacity>
-*/
