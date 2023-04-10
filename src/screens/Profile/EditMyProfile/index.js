@@ -111,6 +111,8 @@ const EditMyProfile = () => {
                 >
                     <Text className="text-sm font-bold text-center text-white">Kaydet</Text>
                 </TouchableOpacity>
+
+                <View className="h-2"/>
             </ScrollView>
         </View>
     )

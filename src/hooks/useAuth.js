@@ -10,10 +10,13 @@ import { auth, storage, store } from "../library/firebase"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { CustomModal } from "../components";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { useNavigation } from "@react-navigation/native";
 
 const AuthContext = createContext(null)
 
 const AuthProvider = ({ children }) => {
+
+    const navigation = useNavigation()
 
     const [user, setUser] = useState(null)
     const [detailedUser, setDetailedUser] = useState(null)
@@ -36,6 +39,8 @@ const AuthProvider = ({ children }) => {
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 setDetailedUser(docSnap.data())
+            } else {
+                navigation.navigate("Profile", { edit: true })
             }
         }
         if (user) getDetailedUser()

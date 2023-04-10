@@ -6,13 +6,14 @@ import { EditMyProfile } from "./EditMyProfile";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from '@expo/vector-icons'; 
 import { W } from "../../config/constants";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 const Tab = createMaterialTopTabNavigator();
 
 const Profile = () => {
 
     const navigation = useNavigation()
+    const { params } = useRoute()
 
     return(
         <SafeAreaView className="flex-1 bg-white">
@@ -29,6 +30,7 @@ const Profile = () => {
                         tabBarActiveTintColor: "#ff5864",
                         tabBarIndicatorStyle: { backgroundColor: "#ff5864" }
                     }}
+                    initialRouteName={params?.edit ? "EditMyProfile" : "ViewMyProfile"}
                 >
                     <Tab.Screen name="ViewMyProfile" component={ViewMyProfile} options={{ title: "View Profile" }} />
                     <Tab.Screen name="EditMyProfile" component={EditMyProfile} options={{ title: "Edit Profile" }} />
