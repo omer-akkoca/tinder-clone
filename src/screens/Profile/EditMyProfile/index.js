@@ -30,7 +30,7 @@ const EditMyProfile = () => {
 
     return (
         <View className="flex-1">
-            <ScrollView className="space-y-4 pt-4">
+            <ScrollView keyboardShouldPersistTaps="always" className="space-y-4 pt-4">
                 <View>
                     <Text className="font-bold px-4 mb-2">Name</Text>
                     <View className="bg-white">
@@ -57,11 +57,14 @@ const EditMyProfile = () => {
                 </View>
 
                 <View>
-                    <Text className="font-bold px-4 mb-2">About {user.displayName}</Text>
-                    <View className={`bg-white h-28`}>
+                    <View className="flex-row items-center justify-between px-4 mb-2">
+                        <Text className="font-bold">About {user.displayName}</Text>
+                        <Text className="text-xs text-gray-500">{500-about.length}</Text>
+                    </View>
+                    <View className={`relative bg-white min-h-28`}>
                         <TextInput
                             value={about}
-                            onChangeText={setAbout}
+                            onChangeText={about => setAbout(about.substring(0,500))}
                             placeholder="Hello!"
                             multiline
                             className="p-4"
