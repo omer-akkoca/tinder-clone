@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import Swiper from "react-native-deck-swiper";
 import { Entypo } from '@expo/vector-icons'; 
 import { AntDesign } from '@expo/vector-icons';
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, setDoc } from "firebase/firestore";
 import { store } from "../../library/firebase";
 import { H, W } from "../../config/constants"
 
@@ -19,13 +19,46 @@ const Home = () => {
     const [users, setUsers] = useState([])
     const [swipedAll, setSwipedAll] = useState(false)
 
+    const showSwiper = users.length > 0 && !swipedAll
+
     useEffect(() => {
-        const unsub = onSnapshot(collection(store, "users"), (doc) => {
-            const users = doc.docs.filter(x => x.data().id !== user.email).map(item => item.data()) 
-            setUsers(users) 
-        })
+        let unsub;
+        
+        const fetchUsers = async () => {
+
+            const passes = await getDocs(collection(store, "users", user.email, "passes")).then(snapshot => snapshot.docs.map(x=> x.data().id))
+            const possibleMatch = await getDocs(collection(store, "users", user.email, "possible-match")).then(snapshot => snapshot.docs.map(x=> x.data().id))
+
+            unsub = onSnapshot(collection(store, "users"), (doc) => {
+                const users = doc.docs
+                    .filter(x => 
+                        x.data().id !== user.email &&
+                        passes.indexOf(x.data().id) < 0 &&
+                        possibleMatch.indexOf(x.data().id) < 0
+                    )
+                    .map(item => item.data()) 
+                setUsers(users) 
+            })
+        }
+        
+        fetchUsers()
+        
         return () => unsub();
     }, [])
+
+    const swiperLeft = (index) => { // pass
+        if (!users[index]) return;
+        const userSwiped = users[index]
+
+        setDoc(doc(store, "users", user.email, "passes", userSwiped.email), userSwiped)
+    }
+
+    const swiperRight = (index) => { // match
+        if (!users[index]) return;
+        const userSwiped = users[index]
+
+        setDoc(doc(store, "users", user.email, "possible-match", userSwiped.email), userSwiped)
+    }
 
     return(
         <SafeAreaView className="flex-1 bg-white">
@@ -45,11 +78,12 @@ const Home = () => {
 
             <View className="flex-1 bg-white items-center justify-center -mt-10">
                 {
-                    users.length > 0 && (
+                    showSwiper ? (
                         <Swiper
                             ref={swiperRef}
                             containerStyle={{ flex: 1, display: !swipedAll ? "flex" : "none" }}
                             cards={users}
+                            keyExtractor={(item) => item?.id}
                             cardIndex={0}
                             stackSize={5}
                             verticalSwipe={false}
@@ -57,8 +91,14 @@ const Home = () => {
                             animateCardOpacity
                             onSwipedAll={() => {
                                 setSwipedAll(true)
-                                console.log("Omer AKKOCA")
-                            }} // userları resetle
+                            }}
+                            onSwipedLeft={(cardIndex) => {
+                                swiperLeft(cardIndex)
+                            }}
+                            onSwipedRight={(cardIndex) => {
+                                //match
+                                swiperRight(cardIndex)
+                            }}
                             overlayLabels={{
                                 left: {
                                     title: "NOPE",
@@ -79,13 +119,6 @@ const Home = () => {
                                     }
                                 }
                             }}
-                            onSwipedLeft={() => {
-                                //pass
-                            }}
-                            onSwipedRight={() => {
-                                //match
-                            }}
-                            keyExtractor={(item) => item?.id}
                             renderCard={(item) => (
                                 <View key={item?.email} style={{ height: H(65) }} className="w-full bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100">
                                     <Image
@@ -103,20 +136,16 @@ const Home = () => {
                             )}
                         />
                     )
+                    :   null
                 }
-                <View style={{ height: H(65), display: swipedAll ? "flex" : "none" }} className="w-11/12 mx-auto bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 justify-center items-center">
+                <View style={{ height: H(65), display: !showSwiper ? "flex" : "none" }} className="w-11/12 mx-auto bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 justify-center items-center">
                     <Text className="font-bold text-center text-base mb-4">No More Profiles</Text>
                     <Image
                         source={{ uri: "https://cdn-icons-png.flaticon.com/512/3129/3129281.png" }}
                         style={{ width: W(25), height: W(25), resizeMode: "cover" }}
                         className="mb-4"
                     />
-                    <TouchableOpacity onPress={() => {
-                        setSwipedAll(false)
-                        swiperRef.current.jumpToCardIndex(0)
-                    }}>
-                        <Text className="text-gray-400">Click to turn start</Text>
-                    </TouchableOpacity>
+                    <Text className="text-gray-500 text-xs">You swiped all users.</Text>
                 </View>
             </View>
 
