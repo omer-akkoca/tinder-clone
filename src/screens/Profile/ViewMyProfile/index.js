@@ -43,7 +43,7 @@ const ViewMyProfile = () => {
                     </View>
                 </View>
                 <View className="flex-row space-x-2 items-center px-4">
-                    <Text className="font-bold text-2xl">{user.displayName}</Text>
+                    <Text className="font-bold text-2xl">{detailedUser?.displayName || "Your Name"}</Text>
                     <Text className="font-medium text-2xl">{detailedUser?.age || "Age"}</Text>
                     { user.emailVerified && <Ionicons name="shield-checkmark" size={W(6)} color="green"/>}
                 </View>
@@ -70,20 +70,3 @@ const ViewMyProfile = () => {
 }
 
 export { ViewMyProfile };
-
-/*
-            <View className="relative border-b border-gray-400">
-                <Image
-                    source={{ uri: user.photoURL ? user.photoURL : defaultUserCover }}
-                    className="w-full object-cover" style={{ height: H(45) }}
-                />
-
-                <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    className="absolute top-8 left-4 bg-[#ff5864] h-10 w-10 rounded-full items-center justify-center"
-                    activeOpacity={0.5}
-                >
-                    <AntDesign name="arrowleft" size={24} color="white" />
-                </TouchableOpacity>
-            </View>
-            */

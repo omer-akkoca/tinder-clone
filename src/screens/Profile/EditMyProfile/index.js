@@ -6,7 +6,7 @@ const EditMyProfile = () => {
 
     const { user, loading, editProfile, detailedUser } = useAuth()
 
-    const [name, setName] = useState(user.displayName)
+    const [name, setName] = useState(detailedUser?.displayName)
     const [age, setAge] = useState(detailedUser?.age)
     const [job, setJob] = useState(detailedUser?.job)
     const [about,setAbout] = useState(detailedUser?.about)
@@ -18,6 +18,7 @@ const EditMyProfile = () => {
             name,
             age,
             job,
+            id: user.email,
             email: user.email,
             photoURL: user.photoURL,
             about,

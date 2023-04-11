@@ -90,13 +90,16 @@ const AuthProvider = ({ children }) => {
             photoURL
         }).then((x) => {
             if (displayName && image) {
-                setUser(user => ({ ...user, displayName: displayName, image }))
+                setUser(user => ({ ...user, displayName: displayName, photoURL }))
             }
             else if (displayName) {
                 setUser(user => ({ ...user, displayName }))
             }
             else if (image) {
-                setUser(user => ({ ...user, image }))
+                setUser(user => ({ ...user, photoURL }))
+                if (detailedUser) {
+                    setDoc(doc(store, "users", user.email),{ ...detailedUser, photoURL })
+                }
             }
             CustomModal.showModal({ title: "Success", description: "Your profile updated successfully." })
         }).catch((error) => {
@@ -110,6 +113,7 @@ const AuthProvider = ({ children }) => {
             age: user.age,
             displayName: user.name,
             id: user.email,
+            email: user.email,
             job: user.job,
             photoURL: user.photoURL,
             about: user.about,
@@ -117,7 +121,7 @@ const AuthProvider = ({ children }) => {
             school: user.school,
             timestamp: serverTimestamp()   
         }).then(() => {
-            updateProfileOnFirebase({ displayName: user.displayName })
+            updateProfileOnFirebase({ displayName: user.name })
             setLoading(false)
         }).catch(err => {
             console.log(err.code)
