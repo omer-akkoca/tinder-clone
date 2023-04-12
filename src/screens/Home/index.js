@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import Swiper from "react-native-deck-swiper";
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-import { collection, doc, getDocs, onSnapshot, query, setDoc, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, onSnapshot, query, serverTimestamp, setDoc, where } from "firebase/firestore";
 import { store } from "../../library/firebase";
 import { H, W } from "../../config/constants"
 
@@ -15,7 +15,7 @@ const Home = () => {
 
     const navigation = useNavigation()
     const swiperRef = useRef(null)
-    const { user } = useAuth()
+    const { user, detailedUser } = useAuth()
     const [users, setUsers] = useState([])
     const [swipedAll, setSwipedAll] = useState(false)
 
@@ -29,8 +29,8 @@ const Home = () => {
             const passes = await getDocs(collection(store, "users", user.email, "passes")).then(snapshot => snapshot.docs.map(x=> x.data().id))
             const possibleMatch = await getDocs(collection(store, "users", user.email, "possible-match")).then(snapshot => snapshot.docs.map(x=> x.data().id))
 
-            const passesID = passes ? passes : ["test"]
-            const possibleMatchId = possibleMatch ? possibleMatch : ["test"]
+            const passesID = passes.length > 0 ? passes : ["test"]
+            const possibleMatchId = possibleMatch.length > 0 ? possibleMatch : ["test"]
 
             unsub = onSnapshot(query(collection(store, "users"), where("id", "not-in", [...passesID,...possibleMatchId])), (doc) => {
                 const users = doc.docs
@@ -45,18 +45,44 @@ const Home = () => {
         return () => unsub();
     }, [])
 
-    const swiperLeft = (index) => { // pass
+    const swiperLeft = (index) => {
         if (!users[index]) return;
         const userSwiped = users[index]
 
         setDoc(doc(store, "users", user.email, "passes", userSwiped.email), userSwiped)
     }
 
-    const swiperRight = (index) => { // match
+    const swiperRight = (index) => {
         if (!users[index]) return;
         const userSwiped = users[index]
 
-        setDoc(doc(store, "users", user.email, "possible-match", userSwiped.email), userSwiped)
+        //todo: add match list
+        getDoc(doc(store, "users", userSwiped.email, "possible-match", user.email)).then(snapshot => {
+            if (snapshot.exists()) {
+                // make match
+                console.log(`You matched with ${userSwiped.displayName}.`)
+
+                setDoc(doc(store, "users", user.email, "possible-match", userSwiped.email), userSwiped)
+
+                setDoc(doc(store, "match", `${user.email}+${userSwiped.email}`), {
+                    users: {
+                        [user.email]: detailedUser,
+                        [userSwiped.email]: userSwiped
+                    },
+                    usersMatch: [user.email,userSwiped.email],
+                    timestamp: serverTimestamp()
+                })
+                
+                navigation.navigate("Match", {
+                    userSwiped,
+                    detailedUser
+                })
+
+            } else {
+                //todo: add possbile-match list
+                setDoc(doc(store, "users", user.email, "possible-match", userSwiped.email), userSwiped)
+            }
+        })
     }
 
     return(
@@ -70,7 +96,7 @@ const Home = () => {
                     />
                 </TouchableOpacity>
                 <Image className="h-10 w-10 object-contain" source={require("../../../assets/logo.png")}/>
-                <TouchableOpacity onPress={() => navigation.navigate("Match")}>
+                <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
                     <Ionicons name="chatbubbles" size={28} color="#ff5864" />
                 </TouchableOpacity>
             </View>
