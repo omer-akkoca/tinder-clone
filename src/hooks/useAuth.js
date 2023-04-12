@@ -120,7 +120,7 @@ const AuthProvider = ({ children }) => {
             location: user.location,
             school: user.school,
             timestamp: serverTimestamp()   
-        }).then(() => {
+        }, { merge: true }).then(() => {
             updateProfileOnFirebase({ displayName: user.name })
             setLoading(false)
         }).catch(err => {

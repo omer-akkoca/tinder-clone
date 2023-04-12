@@ -9,7 +9,7 @@ const EditMyProfile = () => {
     const [name, setName] = useState(detailedUser?.displayName)
     const [age, setAge] = useState(detailedUser?.age)
     const [job, setJob] = useState(detailedUser?.job)
-    const [about,setAbout] = useState(detailedUser?.about)
+    const [about,setAbout] = useState(detailedUser?.about || "")
     const [location, setLocation] = useState(detailedUser?.location)
     const [school, setSchool] = useState(detailedUser?.school)
 
@@ -59,7 +59,7 @@ const EditMyProfile = () => {
                 <View>
                     <View className="flex-row items-center justify-between px-4 mb-2">
                         <Text className="font-bold">About {user.displayName}</Text>
-                        <Text className="text-xs text-gray-500">{500-about.length}</Text>
+                        <Text className="text-xs text-gray-500">{500-about?.length}</Text>
                     </View>
                     <View className={`relative bg-white min-h-28`}>
                         <TextInput
