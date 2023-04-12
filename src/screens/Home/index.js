@@ -5,9 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import Swiper from "react-native-deck-swiper";
-import { Entypo } from '@expo/vector-icons'; 
+import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-import { collection, doc, getDocs, onSnapshot, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, onSnapshot, query, setDoc, where } from "firebase/firestore";
 import { store } from "../../library/firebase";
 import { H, W } from "../../config/constants"
 
@@ -29,13 +29,12 @@ const Home = () => {
             const passes = await getDocs(collection(store, "users", user.email, "passes")).then(snapshot => snapshot.docs.map(x=> x.data().id))
             const possibleMatch = await getDocs(collection(store, "users", user.email, "possible-match")).then(snapshot => snapshot.docs.map(x=> x.data().id))
 
-            unsub = onSnapshot(collection(store, "users"), (doc) => {
+            const passesID = passes ? passes : ["test"]
+            const possibleMatchId = possibleMatch ? possibleMatch : ["test"]
+
+            unsub = onSnapshot(query(collection(store, "users"), where("id", "not-in", [...passesID,...possibleMatchId])), (doc) => {
                 const users = doc.docs
-                    .filter(x => 
-                        x.data().id !== user.email &&
-                        passes.indexOf(x.data().id) < 0 &&
-                        possibleMatch.indexOf(x.data().id) < 0
-                    )
+                    .filter(x => x.data().id !== user.email)
                     .map(item => item.data()) 
                 setUsers(users) 
             })
@@ -150,10 +149,10 @@ const Home = () => {
             </View>
 
             <View className="bg-white px-4 py-2 flex-row justify-evenly">
-                <TouchableOpacity onPress={() => swiperRef.current.swipeLeft()} className="items-center justify-center rounded-full p-5 bg-red-200">
+                <TouchableOpacity disabled={!showSwiper} onPress={() => swiperRef.current.swipeLeft()} className="items-center justify-center rounded-full p-5 bg-red-200">
                 <Entypo name="cross" size={20} color="red" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => swiperRef.current.swipeRight()} className="items-center justify-center rounded-full p-5 bg-green-200">
+                <TouchableOpacity disabled={!showSwiper} onPress={() => swiperRef.current.swipeRight()} className="items-center justify-center rounded-full p-5 bg-green-200">
                 <AntDesign name="heart" size={20} color="green" />
                 </TouchableOpacity>
             </View>
