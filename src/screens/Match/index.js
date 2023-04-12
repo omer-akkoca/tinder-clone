@@ -33,7 +33,10 @@ const Match = () => {
                 </View>
                 <TouchableOpacity
                     activeOpacity={0.5} className="w-full p-5 rounded-full bg-white"
-                    onPress={() => navigation.navigate("Chat")}
+                    onPress={() => {
+                        navigation.goBack()
+                        navigation.navigate("Chat")
+                    }}
                 >
                     <Text className="text-center text-sm">Send a Message</Text>
                 </TouchableOpacity>
