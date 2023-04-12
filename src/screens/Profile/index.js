@@ -4,14 +4,16 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { ViewMyProfile } from "./ViewMyProfile";
 import { EditMyProfile } from "./EditMyProfile";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign, FontAwesome5 } from '@expo/vector-icons'; 
 import { W } from "../../config/constants";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import useAuth from "../../hooks/useAuth"
 
 const Tab = createMaterialTopTabNavigator();
 
 const Profile = () => {
 
+    const { logout } = useAuth()
     const navigation = useNavigation()
     const { params } = useRoute()
 
@@ -22,6 +24,9 @@ const Profile = () => {
                     <AntDesign name="arrowleft" size={W(5)} color="black" />
                 </TouchableOpacity>
                 <Text className="flex-1 text-center font-bold text-sm">Profile</Text>
+                <TouchableOpacity onPress={() => logout()}>
+                    <FontAwesome5 name="power-off" size={W(5)} color="black" />
+                </TouchableOpacity>
             </View>
             <View className="flex-1 bg-white">
                 <Tab.Navigator

@@ -28,6 +28,8 @@ const AuthProvider = ({ children }) => {
             if (user) {
                 setUser(user)
             } else {
+                setUser(null)
+                setDetailedUser(null)
             }
         })
         return () => unsub();
