@@ -3,7 +3,6 @@ import { View, Text, Image } from "react-native";
 import { W } from "../../../config/constants";
 
 const ReceiverMessage = ({ message }) => {
-    console.log(message.timestamp)
     return (
         <View
             className="flex-row self-start items-center" 

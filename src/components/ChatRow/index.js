@@ -23,7 +23,7 @@ const ChatRow = ({ matchDetails }) => {
         const unsub = onSnapshot(
             query(collection(store, "match", matchDetails.id, "messages"), orderBy("timestamp","desc")),
             (snapshot) => {
-                setLastMessage(snapshot.docs[0].data()?.message)
+                setLastMessage(snapshot.docs[0]?.data()?.message)
             }
         )
         return () => unsub();
@@ -38,7 +38,7 @@ const ChatRow = ({ matchDetails }) => {
             />
             <View className="flex-1">
                 <Text className="font-bold text-lg">{userInfo?.displayName}</Text>
-                <Text className="text-gray-600 text-xs">{lastMessage}</Text>
+                <Text className="text-gray-600 text-xs">{lastMessage || "Say hi..."}</Text>
             </View>
         </TouchableOpacity>
     )

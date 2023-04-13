@@ -40,6 +40,7 @@ const Login = () => {
                                     value={password}
                                     onChangeText={setPasword}
                                     placeholder="Password"
+                                    secureTextEntry
                                     className=" flex-1 border border-gray-100 bg-white px-4 py-2 rounded-full"
                                 />
                             </View>
