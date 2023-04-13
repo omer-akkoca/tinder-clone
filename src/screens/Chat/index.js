@@ -41,8 +41,8 @@ const Chat = () => {
                                 renderItem={({item}) => <ChatRow matchDetails={item}/>}
                                 className="px-4"
                                 ListHeaderComponent={() => <View className="h-2"/>}
-                                ListFooterComponent={() => <View className="h-2"/>}
-                                ItemSeparatorComponent={() => <View className="h-2"/>}
+                                ListFooterComponent={() => <View className="h-4"/>}
+                                ItemSeparatorComponent={() => <View className="h-4"/>}
                             />
                         )
                         : (
