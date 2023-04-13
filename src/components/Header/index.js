@@ -5,13 +5,13 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import useAuth from "../../hooks/useAuth";
 import { W } from "../../config/constants";
 
-const Header = ({ title, showCall = false, showLogout = false}) => {
+const Header = ({ title, showCall = false, showLogout = false, transparent = false }) => {
 
     const { logout } = useAuth()
     const navigation = useNavigation()
 
     return(
-        <View className="bg-white flex-row items-center justify-between px-4 pb-1 pt-4">
+        <View className={`${transparent ? "bg-transparent" : "bg-white" } h-16 flex-row items-center justify-between px-4`}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
                 <AntDesign name="arrowleft" size={W(5)} color="#ff5864" />
             </TouchableOpacity>
