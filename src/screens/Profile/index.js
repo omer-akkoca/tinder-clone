@@ -1,34 +1,21 @@
 import React from "react";
-import { View } from "react-native";
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { ViewMyProfile } from "./ViewMyProfile";
-import { EditMyProfile } from "./EditMyProfile";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRoute } from "@react-navigation/native";
-import { Header } from "../../components";
-const Tab = createMaterialTopTabNavigator();
+import useAuth from "../../hooks/useAuth";
+import MyProfile from "./MyProfile";
+import OtherProfile from "./OtherProfile";
 
 const Profile = () => {
 
+    const { user } = useAuth()
     const { params } = useRoute()
+    const { edit, userId } = params
+
+    const isMyProfile = userId === user.email
 
     return(
-        <SafeAreaView className="flex-1 bg-white">
-            <Header title={"Profile"} showLogout/>
-            <View className="flex-1 bg-white">
-                <Tab.Navigator
-                    screenOptions={{
-                        tabBarLabelStyle: { textTransform: "capitalize", fontWeight: "bold" },
-                        tabBarActiveTintColor: "#ff5864",
-                        tabBarIndicatorStyle: { backgroundColor: "#ff5864" }
-                    }}
-                    initialRouteName={params?.edit ? "EditMyProfile" : "ViewMyProfile"}
-                >
-                    <Tab.Screen name="ViewMyProfile" component={ViewMyProfile} options={{ title: "View Profile" }} />
-                    <Tab.Screen name="EditMyProfile" component={EditMyProfile} options={{ title: "Edit Profile" }} />
-                </Tab.Navigator>
-            </View>
-        </SafeAreaView>
+        isMyProfile
+            ?   <MyProfile edit={edit}/>
+            :   <OtherProfile userId={userId}/>
     )
 }
 
