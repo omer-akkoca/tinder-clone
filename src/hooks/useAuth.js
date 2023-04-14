@@ -8,7 +8,7 @@ import {
 } from "firebase/auth";
 import { auth, storage, store } from "../library/firebase"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { CustomModal } from "../components";
+import { CustomModal, LoadingModal } from "../components";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 
@@ -87,6 +87,7 @@ const AuthProvider = ({ children }) => {
         if (image) {
             photoURL = await uploadFileOnFirebase(image)
         }
+        setLoading(true)
         updateProfile(auth.currentUser, {
             displayName,
             photoURL
@@ -103,9 +104,11 @@ const AuthProvider = ({ children }) => {
                     setDoc(doc(store, "users", user.email),{ ...detailedUser, photoURL })
                 }
             }
+            setLoading(false)
             CustomModal.showModal({ title: "Success", description: "Your profile updated successfully." })
         }).catch((error) => {
             setError("Your profile could not be updated.")
+            setLoading(false)
         })
     }
 
@@ -127,10 +130,12 @@ const AuthProvider = ({ children }) => {
             setLoading(false)
         }).catch(err => {
             console.log(err.code)
+            setLoading(false)
         })
     }
 
     const uploadFileOnFirebase = async (file) => {
+        setLoading(true)
         const fileName = createAnId()
         const profileImageRef = ref(storage, fileName);
         const response = await fetch(file)
@@ -163,8 +168,11 @@ const AuthProvider = ({ children }) => {
         logout
     }), [user, error, loading, detailedUser])
 
+    console.log("LOADING: ", loading)
+
     return(
         <AuthContext.Provider value={memoedValue}>
+            {loading && <LoadingModal/>}
             {children}
         </AuthContext.Provider>
     )
