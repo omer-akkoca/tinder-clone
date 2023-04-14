@@ -89,7 +89,7 @@ const Home = () => {
         <SafeAreaView className="flex-1 bg-white">
 
             <View className="p-4 items-center justify-between flex-row z-50">
-                <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                <TouchableOpacity onPress={() => navigation.navigate("Profile", { userId: user.email })}>
                     <Image 
                         className="h-8 w-8 rounded-full"
                         source={user.photoURL ? { uri: user.photoURL } : require("../../../assets/default-user.png")}

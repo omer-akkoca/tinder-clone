@@ -42,7 +42,7 @@ const AuthProvider = ({ children }) => {
             if (docSnap.exists()) {
                 setDetailedUser(docSnap.data())
             } else {
-                navigation.navigate("Profile", { edit: true })
+                navigation.navigate("Profile", { edit: true, userId: user.email })
             }
         }
         if (user) getDetailedUser()

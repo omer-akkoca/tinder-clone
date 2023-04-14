@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Tab = createMaterialTopTabNavigator();
 
-const MyProfile = ({ edit }) => {
+const MyProfile = ({ edit = false }) => {
     return (
         <SafeAreaView className="flex-1 bg-white">
             <Header title={"Profile"} showLogout/>
